@@ -26,4 +26,5 @@ urlpatterns = [
     path('api/accounts/', include('accounts.urls')),  # Include accounts app URLs
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # login
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/tree/' , include('skills.urls')), 
 ]

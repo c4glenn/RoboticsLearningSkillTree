@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'accounts',  # Custom user app
     'rest_framework_simplejwt.token_blacklist',
+    'skills',  # Skills app
 ]
 
 MIDDLEWARE = [
