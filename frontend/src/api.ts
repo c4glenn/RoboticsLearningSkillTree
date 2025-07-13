@@ -17,7 +17,7 @@ api.interceptors.request.use((config) => {
 
 export async function login(username: string, password: string) {
     try {
-        const response = await api.post("/token/", { username, password });
+        const response = await api.post("/auth/token/", { username, password });
         accessToken = response.data.access;
         if (!accessToken) {
             throw new Error("No access token received");
@@ -53,7 +53,7 @@ export async function refreshToken() {
         throw new Error("No refresh token found");
     }
     try {
-        const response = await api.post("/accounts/token/refresh/", { refresh: refreshToken });
+        const response = await api.post("/auth/token/refresh/", { refresh: refreshToken });
         accessToken = response.data.access;
         if (!accessToken) {
             throw new Error("No access token received on refresh");
