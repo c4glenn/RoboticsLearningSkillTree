@@ -1,6 +1,9 @@
 from rest_framework import viewsets, permissions
-from .models import SkillNode, Lesson, UserProgress
-from .serializers import SkillNodeSerializer, LessonSerializer, UserProgressSerializer
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from .models import SkillNode, SkillNodeStatus, Lesson, LessonStatus
+from .serializers import SkillNodeSerializer, SkillNodeStatusSerializer, LessonSerializer, LessonStatusSerializer
 
 
 
@@ -9,6 +12,11 @@ class SkillNodeViewSet(viewsets.ModelViewSet):
     queryset = SkillNode.objects.all().order_by('order').prefetch_related('prerequisites')
     serializer_class = SkillNodeSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
 
 class LessonViewSet(viewsets.ModelViewSet):
     """ViewSet for Lesson model."""
@@ -16,14 +24,27 @@ class LessonViewSet(viewsets.ModelViewSet):
     serializer_class = LessonSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     
+    def get_queryset(self):
+        user = self.request.user
+        queryset = Lesson.objects.filter(approved=True).order_by('order').prefetch_related('skill_node', 'author')
+        return super().get_queryset()
+    
 class UserProgressViewSet(viewsets.ModelViewSet):
     """ViewSet for UserProgress model."""
-    serializer_class = UserProgressSerializer
+    serializer_class = LessonStatusSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
-        return UserProgress.objects.filter(user=user).select_related('lesson', 'lesson__skill_node')
+        return LessonStatus.objects.filter(user=user).select_related('lesson', 'lesson__skill_node')
     
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+        
+class SkillTreeView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get(self, request):
+        statuses = SkillNodeStatus.objects.filter(user=request.user).select_related('skill_node')
+        serializer = SkillNodeStatusSerializer(statuses, many=True, context={'request': request})
+        return Response(serializer.data)

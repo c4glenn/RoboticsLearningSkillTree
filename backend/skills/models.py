@@ -14,7 +14,34 @@ class SkillNode(models.Model):
 
     def __str__(self):
         return self.title
+    
+    def is_unlocked_for(self, user):
+        """Check if the skill node is unlocked for the user."""
+        if not self.prerequisites.exists():
+            return True
+        
+        if self.user_progress.filter(user=user, unlocked=True).exists():
+            return True
+        
+        return False
+        
+    
+class SkillNodeStatus(models.Model):
+    """Model representing the status of a skill node for a user."""
+    user = models.ForeignKey(User, related_name='skill_node_status', on_delete=models.CASCADE)
+    skill_node = models.ForeignKey(SkillNode, related_name='user_progress', on_delete=models.CASCADE)
+    unlocked = models.BooleanField(default=False)
+    completed = models.BooleanField(default=False)
+    progress = models.FloatField(default=0.0)  # Percentage of completion
+    last_accessed = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        unique_together = ('user', 'skill_node')
+
+    def __str__(self):
+        return f"{self.user.username} - {self.skill_node.title}: {'Completed' if self.completed else 'Incomplete'}"
+
+        
 class Lesson(models.Model):
     """Model representing a lesson associated with a skill node."""
     skill_node = models.ForeignKey(SkillNode, related_name='lessons', on_delete=models.CASCADE)
@@ -31,9 +58,9 @@ class Lesson(models.Model):
     def __str__(self):
         return f"{self.skill_node.title} - {self.title} ({'Community' if self.is_community_contributed else 'Official'})"
 
-class UserProgress(models.Model):
+class LessonStatus(models.Model):
     """Model representing user progress in the skill tree."""
-    user = models.ForeignKey(User, related_name='progress', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name='LessonStatus', on_delete=models.CASCADE)
     lesson = models.ForeignKey(Lesson, related_name='user_progress', on_delete=models.CASCADE)
     completed = models.BooleanField(default=False)
     progress = models.FloatField(default=0.0)  # Percentage of completion
