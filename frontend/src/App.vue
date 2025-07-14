@@ -23,6 +23,18 @@ function logout() {
   isOpen.value = false;
 }
 
+function toggleDarkMode() {
+  document.documentElement.classList.toggle("dark");
+  localStorage.setItem("theme", document.documentElement.classList.contains("dark") ? "dark" : "light");
+}
+
+// Check for saved theme preference
+if (localStorage.getItem("theme") === "dark") {
+  document.documentElement.classList.add("dark");
+} else {
+  document.documentElement.classList.remove("dark");
+}
+
 // Optional: basic click outside directive
 function handleClickOutside(event: MouseEvent) {
   if (!(event.target as HTMLElement).closest(".relative")) {
@@ -35,13 +47,16 @@ onMounted(() => document.addEventListener("click", handleClickOutside));
 onBeforeUnmount(() => document.removeEventListener("click", handleClickOutside));
 </script>
 
-<template class="dark">
+<template>
   <div class="flex flex-col min-h-screen font-sans">
     <header class="dark:bg-gray-600 bg-gray-300 dark:text-white p-4">
       <div class="container mx-auto flex justify-between items-center">
         <h1 class="text-xl font-bold">Robotics Skill Tree</h1>
         <nav>
           <ul class="flex space-x-4">
+            <li>
+              <button @click="toggleDarkMode">Toggle Theme</button>
+            </li>
             <li>
               <RouterLink to="/" class="hover:underline">Home</RouterLink>
             </li>
