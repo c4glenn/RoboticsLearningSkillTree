@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { login, logout, refreshToken } from "@/api";
+import { login, logout, refreshToken, getUserProfile } from "@/api";
 import router from "@/router";
 
 export const useAuthStore = defineStore("auth", {
@@ -10,13 +10,24 @@ export const useAuthStore = defineStore("auth", {
         isAuthenticated: !!localStorage.getItem("accessToken"),
     }),
     actions: {
+        async fetchUserProfile() {
+            if (!this.accessToken) {
+                throw new Error("User is not authenticated");
+            }
+            try {
+                this.user = await getUserProfile();
+            } catch (error) {
+                console.error("Failed to fetch user profile:", error);
+                throw error;
+            }
+        },
         async login(username: string, password: string) {
             try {
                 const data = await login(username, password);
-                this.user = data.user;
                 this.accessToken = data.access;
                 this.refreshToken = data.refresh;
                 this.isAuthenticated = true;
+                this.user = await getUserProfile();
                 router.push("/");
             } catch (error) {
                 console.error("Login failed:", error);

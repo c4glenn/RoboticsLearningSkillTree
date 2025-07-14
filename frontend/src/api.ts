@@ -24,9 +24,23 @@ export async function login(username: string, password: string) {
         }
         localStorage.setItem("accessToken", accessToken);
         localStorage.setItem("refresh_token", response.data.refresh);
+
         return response.data;
     } catch (error) {
         console.error("Login failed:", error);
+        throw error;
+    }
+}
+
+export async function getUserProfile() {
+    if (!accessToken) {
+        throw new Error("User is not authenticated");
+    }
+    try {
+        const response = await api.get("/accounts/me/");
+        return response.data;
+    } catch (error) {
+        console.error("Failed to fetch user profile:", error);
         throw error;
     }
 }
@@ -37,7 +51,12 @@ export async function logout() {
         throw new Error("No refresh token found");
     }
     try {
-        await api.post("/accounts/logout/", { refresh: refreshToken });
+        console.log("Logging out with refresh token:", refreshToken);
+        await api.post("/accounts/logout/", { refresh: refreshToken }, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        });
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refresh_token");
         accessToken = null;
