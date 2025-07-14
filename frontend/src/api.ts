@@ -32,6 +32,16 @@ export async function login(username: string, password: string) {
     }
 }
 
+export async function register(username: string, email: string, password: string) {
+    try {
+        const response = await api.post("/accounts/register/", { username, email, password });
+        return response.data;
+    } catch (error) {
+        console.error("Registration failed:", error);
+        throw error;
+    }
+}
+
 export async function getUserProfile() {
     if (!accessToken) {
         throw new Error("User is not authenticated");
