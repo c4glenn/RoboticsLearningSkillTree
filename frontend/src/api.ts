@@ -32,12 +32,16 @@ export async function login(username: string, password: string) {
     }
 }
 
-export async function register(username: string, email: string, password: string) {
+export async function register(username: string, email: string, password: string, firstName?: string, lastName?: string) {
     try {
-        const response = await api.post("/accounts/register/", { username, email, password });
+        const response = await api.post("/accounts/register/", {username, email, password, firstName, lastName});
         return response.data;
-    } catch (error) {
-        console.error("Registration failed:", error);
+    } catch (error: any) {
+        if (error.response) {
+            console.error("Registration failed:", error.response.data);
+        } else {
+            console.error("Registration failed:", error.message);
+        }
         throw error;
     }
 }
