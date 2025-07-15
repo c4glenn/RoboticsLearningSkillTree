@@ -6,8 +6,18 @@ User = get_user_model()
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = "__all__"
+        exclude = ('password',)
         read_only_fields = ('id',)  # Make ID read-only
+        
+    def update(self, instance, validated_data):
+        for attr, value in validated_data.items():
+            if attr in ['groups', 'user_permissions']:
+                # Skip updating groups and user_permissions
+                continue
+            print(f"Updating {attr} to {value}")  # Debugging line
+            setattr(instance, attr, value)
+        instance.save()
+        return instance
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
