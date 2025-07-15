@@ -9,12 +9,6 @@ const auth = useAuthStore();
 const isOpen = ref(false);
 const isDark = ref(false);
 const router = useRouter();
-try {
-  // Fetch user profile on mount
-  auth.fetchUserProfile();
-} catch (error) {
-  console.error("Failed to fetch user profile:", error);
-}
 
 function toggleDropdown() {
   isOpen.value = !isOpen.value;
@@ -37,8 +31,16 @@ onMounted(() => {
   } else {
     document.documentElement.classList.remove("dark");
   }
+
+  if (auth.isAuthenticated) {
+    try {
+      // Fetch user profile on mount
+      auth.fetchUserProfile();
+    } catch (error) {
+      console.error("Failed to fetch user profile:", error);
+    }
+  }
 });
-// Check for saved theme preference
 
 
 // Optional: basic click outside directive
@@ -147,5 +149,7 @@ onBeforeUnmount(() => document.removeEventListener("click", handleClickOutside))
   font-family: 'Inter', sans-serif;
 }
 
-code {font-family: 'JetBrains Mono', monospace;}
+code {
+  font-family: 'JetBrains Mono', monospace;
+}
 </style>
