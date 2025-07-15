@@ -2,7 +2,7 @@
   <div class="flex items-center justify-center h-full dark:bg-sky-950 bg-sky-100 ">
     <form
       @submit.prevent="submit"
-      class="w-full max-w-sm p-8 space-y-6 dark:bg-gray-600 bg-white rounded shadow-md"  
+      class="w-full max-w-sm p-8 space-y-6 dark:bg-gray-800 bg-white rounded shadow-md"  
     >
       <h2 class="text-2xl font-bold text-center dark:text-white text-gray-800">Login</h2>
 
