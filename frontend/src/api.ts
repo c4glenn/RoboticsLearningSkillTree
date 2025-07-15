@@ -6,6 +6,7 @@ const api = axios.create({
     baseURL: API_BASE_URL,
 });
 
+
 let accessToken = localStorage.getItem("accessToken");
 
 api.interceptors.request.use((config) => {
@@ -22,6 +23,7 @@ export async function login(username: string, password: string) {
         if (!accessToken) {
             throw new Error("No access token received");
         }
+        api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
         localStorage.setItem("accessToken", accessToken);
         localStorage.setItem("refresh_token", response.data.refresh);
 
