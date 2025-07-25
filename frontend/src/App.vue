@@ -76,6 +76,9 @@ onBeforeUnmount(() => document.removeEventListener("click", handleClickOutside))
             <li>
               <RouterLink to="/skills" class="hover:underline">Full Skill Tree</RouterLink>
             </li>
+            <li>
+              <RouterLink to="/about" class="hover:underline">About</RouterLink>
+            </li>
             <template v-if="!auth.user">
               <li>
                 <RouterLink to="/login" class="hover:underline">Login</RouterLink>

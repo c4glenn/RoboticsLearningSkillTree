@@ -3,6 +3,7 @@ import HomeView from '@/components/Home.vue'
 import Login from '@/components/Login.vue'
 import Register from '@/components/Register.vue'
 import Profile from '@/components/Profile.vue'
+import SkillTree from '@/components/SkillTree.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -27,6 +28,11 @@ const router = createRouter({
       name: 'Profile',
       component: Profile,
       meta: { requiresAuth: true }, // Protect this route
+    },
+    {
+      path: '/skills',
+      name: 'SkillTree',
+      component: SkillTree,
     }
   ],
 })

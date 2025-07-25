@@ -48,3 +48,34 @@ class SkillTreeView(APIView):
         statuses = SkillNodeStatus.objects.filter(user=request.user).select_related('skill_node')
         serializer = SkillNodeStatusSerializer(statuses, many=True, context={'request': request})
         return Response(serializer.data)
+    
+    
+class SkillNodeDummyData(APIView):
+    dummy_data = '''{
+  "nodes": [
+    {
+      "id": "intro",
+      "label": "Intro to Robotics",
+      "position": { "x": 100, "y": 100 },
+      "class": "bg-gray-800 text-white rounded-lg p-2 shadow-md"
+    },
+    {
+      "id": "mobility",
+      "label": "Mobility Systems",
+      "position": { "x": 300, "y": 200 },
+      "class": "bg-purple-800 text-white rounded-lg p-2 shadow-md"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1-2",
+      "source": "intro",
+      "target": "mobility"
+    }
+  ]
+}
+'''
+    def get(self, request):
+        import json
+        data = json.loads(self.dummy_data)
+        return Response(data)

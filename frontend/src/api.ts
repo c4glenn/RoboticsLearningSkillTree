@@ -101,4 +101,63 @@ export async function refreshToken() {
     }
 }
 
+let isRefreshing = false;
+let requestQueue: {
+    resolve: (value?: any) => void;
+    reject: (reason?: any) => void;
+}[] = [];
+
+
+function processQueue(error: any, newToken: string | null) {
+    requestQueue.forEach((prom) => {
+        if (newToken) {
+            prom.resolve(newToken);
+        }
+        else {
+            prom.reject(error);
+        }
+    });
+    requestQueue = [];
+}
+
+api.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+        const originalRequest = error.config;
+
+        if (error.response?.status === 401 && !originalRequest._retry) {
+            if (isRefreshing) {
+                return new Promise((resolve, reject) => {
+                    requestQueue.push({
+                        resolve: (token: string) => {
+                                originalRequest.headers['Authorization'] = `Bearer ${token}`;
+                                resolve(api(originalRequest));
+                        },
+                        reject,
+                    });
+                });
+            }
+            originalRequest._retry = true;
+            isRefreshing = true;
+            try {
+                const newToken = await refreshToken();
+                accessToken = newToken;
+                api.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+                processQueue(null, newToken);
+                originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
+                return api(originalRequest);
+            } catch (err) {
+                processQueue(err, null);
+                localStorage.removeItem("accessToken");
+                localStorage.removeItem("refresh_token");
+                return Promise.reject(err);
+
+            } finally {
+                isRefreshing = false;
+            }
+        }
+    }
+);
+
+
 export default api;
